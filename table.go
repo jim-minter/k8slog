@@ -23,6 +23,7 @@ func (t *table) addRow(row map[string]any) {
 	for key, val := range row {
 		val := fmt.Sprintf("%v", val)
 		val = strings.ReplaceAll(val, "\n", "")
+		val = strings.ReplaceAll(val, "\t", "        ")
 		t.fieldWidths[key] = max(t.fieldWidths[key], len(val))
 	}
 
@@ -66,6 +67,7 @@ func (t *table) print() {
 		for _, fieldName := range fields {
 			val := fmt.Sprintf("%v", row[fieldName])
 			val = strings.ReplaceAll(val, "\n", "")
+			val = strings.ReplaceAll(val, "\t", "        ")
 			fmt.Printf(fmt.Sprintf("%%-%dv | ", t.fieldWidths[fieldName]), val)
 		}
 		fmt.Println()
