@@ -22,6 +22,8 @@ import (
 
 var (
 	namespace       = flag.String("n", "", "namespace")
+	pod             = flag.String("p", ".*", "pod_regexp")
+	podRegexp       *regexp.Regexp
 	container       = flag.String("c", ".*", "container_regexp")
 	containerRegexp *regexp.Regexp
 	source          = flag.String("s", ".*", "source_regexp")
@@ -41,6 +43,12 @@ func run(ctx context.Context) (err error) {
 	if *namespace == "" {
 		flag.Usage()
 		return fmt.Errorf("-n: required")
+	}
+
+	podRegexp, err = regexp.Compile(*pod)
+	if err != nil {
+		flag.Usage()
+		return fmt.Errorf("-p %s: %w", *pod, err)
 	}
 
 	containerRegexp, err = regexp.Compile(*container)
@@ -72,6 +80,10 @@ func run(ctx context.Context) (err error) {
 	}
 
 	for _, p := range pods.Items {
+		if !podRegexp.MatchString(p.Name) {
+			continue
+		}
+
 		for _, c := range p.Spec.Containers {
 			if !containerRegexp.MatchString(c.Name) {
 				continue
